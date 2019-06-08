@@ -9,11 +9,15 @@ defmodule CockpitNode.Socket do
     def init(config) do
         port = Keyword.get(config, :port)
         address = to_charlist Keyword.get(config, :address)
-
-        :gen_tcp.connect(address, port, [:binary, packet: 2, active: :once])
+        :timer.send_after(3000, {:connect, address, port})
     end
 
-    def handle_info({:tcp, socket, data}, _state) do
+    def handle_info({:connect, address, port}, _state) do
+        {:ok, socket} = :gen_tcp.connect(address, port, [:binary, packet: 2, active: :once])
+        {:noreply, socket}
+    end
+
+    def handle_info({:tcp, socket, _data}, _state) do
         :inet.setopts(socket, [active: :once])
         {:noreply, socket}
     end
