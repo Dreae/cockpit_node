@@ -1,0 +1,3 @@
+defmodule CockpitNode do
+  
+end
