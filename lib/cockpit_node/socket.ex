@@ -30,4 +30,14 @@ defmodule CockpitNode.Socket do
 
         {:noreply, state}
     end
+
+    def handle_info({:decrypted, data}, state) do
+        msg = :erlang.binary_to_term(data)
+        case msg do
+            {:sever_update, msg_body} ->
+                send :compressor_port, msg_body
+        end
+
+        {:noreply, state}
+    end
 end

@@ -8,7 +8,8 @@ defmodule CockpitNode.Application do
   def start(_type, _args) do
     # List all child processes to be supervised
     children = [
-      CockpitNode.Socket
+      CockpitNode.Socket,
+      CockpitNode.CompressorPort
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
