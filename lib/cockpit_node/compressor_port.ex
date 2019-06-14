@@ -10,9 +10,20 @@ defmodule CockpitNode.CompressorPort do
     {:ok, Port.open({:spawn, "compressor"}, [:binary, packet: 2])}
   end
 
-  def handle_info({port, {:data, msg}}) do
+  def handle_info({_port, {:data, <<2, pps::big-unsigned-64>>}}, state) do
+    Logger.info("Compressor PPS: #{pps}")
+    send :cockpit_socket, {:pps_update, pps}
+    
+    {:noreply, state}
+  end
+
+  def handle_info({_port, {:data, msg}}, state) do
     Logger.info("Compressor: #{msg}")
 
-    {:noreply, port}
+    {:noreply, state}
+  end
+
+  def handle_info({:server_update, update}, state) do
+    {:noreply, state}
   end
 end

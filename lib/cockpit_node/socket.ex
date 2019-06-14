@@ -6,7 +6,7 @@ defmodule CockpitNode.Socket do
 
     def start_link(_) do
         config = Application.get_env(:cockpit_node, CockpitNode.Socket)
-        GenServer.start_link(__MODULE__, config)
+        GenServer.start_link(__MODULE__, config, name: :cockpit_socket)
     end
 
     def init(config) do
@@ -25,18 +25,24 @@ defmodule CockpitNode.Socket do
         {:noreply, state}
     end
     
+    def handle_info({:pps_update, pps}, %{session_key: _} = state) do
+        send_encrypted(<<"pps", pps::big-unsigned-64>>, state)
+
+        {:noreply, state}
+    end
+
+    def handle_info({:pps_update, _pps}, state) do
+        {:noreply, state}
+    end
+
     def handle_info({:decrypted, "pong"}, state) do
         Logger.debug("Received pong from daemon")
 
         {:noreply, state}
     end
 
-    def handle_info({:decrypted, data}, state) do
-        msg = :erlang.binary_to_term(data)
-        case msg do
-            {:sever_update, msg_body} ->
-                send :compressor_port, msg_body
-        end
+    def handle_info({:decrypted, <<"server_update", body::binary>>}, state) do
+        send :compressor_port, {:server_update, body}
 
         {:noreply, state}
     end
