@@ -7,7 +7,7 @@ defmodule CockpitNode.CompressorPort do
   end
 
   def init(nil) do
-    {:ok, Port.open({:spawn, "compressor"}, [:binary, packet: 2])}
+    {:ok, %{port: Port.open({:spawn, "compressor"}, [:binary, packet: 2])}}
   end
 
   def handle_info({_port, {:data, <<2, pps::big-unsigned-64>>}}, state) do
@@ -23,7 +23,9 @@ defmodule CockpitNode.CompressorPort do
     {:noreply, state}
   end
 
-  def handle_info({:server_update, update}, state) do
+  def handle_info({:server_update, update}, %{port: port} = state) do
+    Port.command(port, <<1>> <> update)
+
     {:noreply, state}
   end
 end
