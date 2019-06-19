@@ -37,7 +37,8 @@ defmodule CockpitNode.EncryptedSocket do
     session_key = :crypto.compute_key(:ecdh, public_key, private_key, :prime256v1)
     Logger.debug("Key exchange complete")
     Logger.info("Connected to cockpit daemon")
-    :timer.send_interval(5000, :ping)
+    :timer.send_interval(10000, :ping)
+    send self(), :connected
 
     state = state 
       |> Map.put(:session_key, :crypto.hash(:sha512, session_key))

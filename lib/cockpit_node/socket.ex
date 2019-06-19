@@ -25,6 +25,12 @@ defmodule CockpitNode.Socket do
         {:noreply, state}
     end
     
+    def handle_info(:connected, state) do
+        send_encrypted("server_list", state)
+
+        {:noreply, state}
+    end
+
     def handle_info({:pps_update, pps}, %{session_key: _} = state) do
         send_encrypted(<<"pps", pps::big-unsigned-64>>, state)
 
