@@ -41,6 +41,16 @@ defmodule CockpitNode.Socket do
         {:noreply, state}
     end
 
+    def handle_info(:compressor_started, %{session_key: _} = state) do
+      send_encrypted("server_list", state)
+
+      {:noreply, state}
+    end
+
+    def handle_info(:compressor_started, state) do
+      {:noreply, state}
+    end
+
     def handle_info({:decrypted, "pong"}, state) do
         Logger.debug("Received pong from daemon")
 
