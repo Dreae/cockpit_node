@@ -24,7 +24,7 @@ defmodule CockpitNode.Socket do
 
         {:noreply, state}
     end
-    
+
     def handle_info(:connected, state) do
         send_encrypted("server_list", state)
 
@@ -45,6 +45,13 @@ defmodule CockpitNode.Socket do
         Logger.debug("Received pong from daemon")
 
         {:noreply, state}
+    end
+
+    def handle_info({:decrypted, "reboot"}, state) do
+      Logger.debug("Sending shutdown to compressor")
+      send :compressor_port, :shutdown
+
+      {:noreply, state}
     end
 
     def handle_info({:decrypted, <<"server_update", body::binary>>}, state) do

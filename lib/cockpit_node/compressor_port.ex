@@ -13,7 +13,7 @@ defmodule CockpitNode.CompressorPort do
   def handle_info({_port, {:data, <<2, pps::big-unsigned-64>>}}, state) do
     Logger.info("Compressor PPS: #{pps}")
     send :cockpit_socket, {:pps_update, pps}
-    
+
     {:noreply, state}
   end
 
@@ -27,5 +27,9 @@ defmodule CockpitNode.CompressorPort do
     Port.command(port, <<1>> <> update)
 
     {:noreply, state}
+  end
+
+  def handle_info(:shutdown, state) do
+    {:stop, "Shutdown requested", state}
   end
 end
